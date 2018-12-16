@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+//Worker 工作子进程
 type Worker struct {
 	cmdStr string
 	id     int
@@ -19,8 +20,7 @@ type Worker struct {
 	writer io.WriteCloser
 }
 
-var MaxResponseLength uint64 = 32 << 20 // 32 MB
-
+//NewWorker 创建一个新的子进程
 func NewWorker(cmdStr string, id int) (*Worker, error) {
 	cmdStr = strings.TrimSpace(cmdStr)
 	if cmdStr == "" {
@@ -67,6 +67,8 @@ func (worker *Worker) start() (err error) {
 	}()
 
 	cmd := exec.Command("sh", "-c", worker.cmdStr)
+	//设置进程组
+	//	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
 	var stdin io.WriteCloser
 	stdin, err = cmd.StdinPipe()
@@ -113,6 +115,7 @@ func (worker *Worker) processExixts() bool {
 	return worker.cmd.ProcessState != nil && !worker.cmd.ProcessState.Exited()
 }
 
+//Talk 使用子进程对数据进行处理
 func (worker *Worker) Talk(request string) (resp string, err error) {
 	if strings.Contains(request, "\n") {
 		request = strings.Replace(request, "\n", "\\n", -1)
@@ -150,6 +153,7 @@ write:
 	return
 }
 
+//Close 资源回收，包括关闭子进程等逻辑
 func (worker *Worker) Close() (err error) {
 	worker.log("Closing ......")
 	defer func() {
