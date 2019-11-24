@@ -5,14 +5,14 @@ import (
 	"time"
 )
 
-//Pool worker pool
+// Pool worker pool
 type Pool struct {
 	cmd          string
 	workers      int
 	workersQueue chan *Worker
 }
 
-//NewPool 创建一个新的worker pool
+// NewPool 创建一个新的worker pool
 func NewPool(cmd string, workers int) (*Pool, error) {
 	p := &Pool{
 		cmd:          cmd,
@@ -41,7 +41,7 @@ func (p *Pool) initWorkers() error {
 	return nil
 }
 
-//Talk 和子进程进行交互，若交互失败，会一直重试直到成功
+// Talk 和子进程进行交互，若交互失败，会一直重试直到成功
 func (p *Pool) Talk(txt string) string {
 	return p.talk(0, txt)
 }
@@ -63,7 +63,7 @@ func (p *Pool) talk(try uint64, txt string) string {
 	return p.talk(try, txt)
 }
 
-//Close 资源回收清理
+// Close 资源回收清理
 func (p *Pool) Close() error {
 	log.Println("pool closing ...")
 	close(p.workersQueue)

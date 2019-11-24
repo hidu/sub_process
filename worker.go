@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-//Worker 工作子进程
+// Worker 工作子进程
 type Worker struct {
 	cmdStr string
 	id     int
@@ -20,7 +20,7 @@ type Worker struct {
 	writer io.WriteCloser
 }
 
-//NewWorker 创建一个新的子进程
+// NewWorker 创建一个新的子进程
 func NewWorker(cmdStr string, id int) (*Worker, error) {
 	cmdStr = strings.TrimSpace(cmdStr)
 	if cmdStr == "" {
@@ -115,13 +115,13 @@ func (worker *Worker) processExixts() bool {
 	return worker.cmd.ProcessState != nil && !worker.cmd.ProcessState.Exited()
 }
 
-//Talk 使用子进程对数据进行处理
+// Talk 使用子进程对数据进行处理
 func (worker *Worker) Talk(request string) (resp string, err error) {
 	if strings.Contains(request, "\n") {
 		request = strings.Replace(request, "\n", "\\n", -1)
 	}
 write:
-	//交互协议：输出内容为一行，以\n结束
+	// 交互协议：输出内容为一行，以\n结束
 	writeStr := fmt.Sprintf("%s\n", request)
 	var n int
 	n, err = io.WriteString(worker.writer, writeStr)
@@ -134,10 +134,10 @@ write:
 			worker.start()
 			goto write
 		}
-		//其他未知异常
+		// 其他未知异常
 		return "WriteString (request) error", err
 	}
-	//读取处理好的数据
+	// 读取处理好的数据
 	resp, err = worker.reader.ReadString('\n')
 	if err != nil {
 		worker.log("read error:", err)
@@ -153,7 +153,7 @@ write:
 	return
 }
 
-//Close 资源回收，包括关闭子进程等逻辑
+// Close 资源回收，包括关闭子进程等逻辑
 func (worker *Worker) Close() (err error) {
 	worker.log("Closing ......")
 	defer func() {
